@@ -1,0 +1,33 @@
+{
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    },
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact"
+    ],
+    "files.associations": {
+      "*.css": "tailwindcss"
+    },
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "tailwindCSS.includeLanguages": {
+      "javascript": "javascript",
+      "typescript": "typescript",
+      "typescriptreact": "typescriptreact"
+    },
+    "python.linting.enabled": true,
+    "python.formatting.provider": "black",
+    "[python]": {
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+      }
+    },
+    "python.terminal.activateEnvironment": true,
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend-python/.venv/bin/python"
+  }
