@@ -1,0 +1,52 @@
+# Archivos de documentación interna (no subir a repo)
+ANALISIS_MEJORAS.md
+Mejoras.md
+Planificacion.md
+Recomendaciones.md
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+
+# Entorno virtual
+venv/
+.venv/
+env/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+/build
+/dist
+/.next/
+/out/
+
+# Env files
+.env
+.env.local
+.env.*.local
