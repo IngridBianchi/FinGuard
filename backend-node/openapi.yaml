@@ -1,0 +1,16 @@
+openapi: 3.0.0
+info:
+  title: FinGuard API
+  version: 1.0.0
+paths:
+  /api/transactions:
+    get:
+      summary: Obtener todas las transacciones
+      responses:
+        '200':
+          description: Lista de transacciones
+    post:
+      summary: Crear transacción
+      responses:
+        '201':
+          description: Transacción creada

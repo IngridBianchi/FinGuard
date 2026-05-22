@@ -11,3 +11,6 @@ faker
 redis
 python-dotenv
 pytest
+slowapi
+python-json-logger
+httpx

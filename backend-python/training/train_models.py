@@ -46,16 +46,28 @@ def train_classification_model(df):
     joblib.dump(model, 'backend-python/app/models/classifier.pkl')
     print("Modelo de clasificación guardado.")
 
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+
 def train_anomaly_model(df):
-    print("Entrenando modelo de Detección de Anomalías...")
-    # Usamos monto para detectar anomalías
-    X = df[['monto']]
+    print("Entrenando modelo de Detección de Anomalías (contextualizado)...")
+    # Usamos monto y categoria para detectar anomalías
+    # OneHotEncoding para la categoría
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('cat', OneHotEncoder(), ['categoria'])
+        ],
+        remainder='passthrough' # Mantenemos el monto
+    )
+    
+    X = preprocessor.fit_transform(df[['monto', 'categoria']])
     
     model = IsolationForest(contamination=0.05, random_state=42)
     model.fit(X)
     
-    joblib.dump(model, 'backend-python/app/models/anomaly_detector.pkl')
-    print("Modelo de anomalías guardado.")
+    # Guardamos tanto el preprocesador como el modelo
+    joblib.dump({'preprocessor': preprocessor, 'model': model}, 'backend-python/app/models/anomaly_detector.pkl')
+    print("Modelo de anomalías (contextualizado) guardado.")
 
 def train_forecasting_model(df):
     print("Entrenando modelo de Predicción de Flujo de Caja...")

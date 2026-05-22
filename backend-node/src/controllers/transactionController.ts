@@ -3,6 +3,11 @@ import { Transaction } from '../services/database';
 import { getPredictions } from '../services/aiService';
 import { TransactionSchema } from '../schemas/transaction';
 
+/**
+ * Obtiene las últimas 50 transacciones ordenadas por fecha descendente.
+ * @param req Express Request object
+ * @param res Express Response object
+ */
 export const getTransactions = async (req: Request, res: Response) => {
   try {
     const transactions = await Transaction.findAll({
@@ -19,6 +24,11 @@ export const getTransactions = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Crea una nueva transacción tras validarla y analizarla con el servicio de IA.
+ * @param req Express Request object
+ * @param res Express Response object
+ */
 export const createTransaction = async (req: Request, res: Response) => {
   try {
     // Validar entrada

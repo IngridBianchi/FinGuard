@@ -5,6 +5,7 @@ from datetime import date
 class TransactionInput(BaseModel):
     descripcion: str
     monto: float
+    categoria: Optional[str] = None
 
 class CategoryPrediction(BaseModel):
     categoria: str
@@ -12,6 +13,7 @@ class CategoryPrediction(BaseModel):
 
 class AnomalyPrediction(BaseModel):
     monto: float
+    categoria: str
     es_anomalia: bool
     score: float
 

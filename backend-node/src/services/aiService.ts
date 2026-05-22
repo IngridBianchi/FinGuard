@@ -9,13 +9,15 @@ export interface PredictionResult {
 
 export const getPredictions = async (descripcion: string, monto: number): Promise<PredictionResult> => {
   try {
-    const [catRes, anomRes] = await Promise.all([
-      axios.post(`${PYTHON_API_URL}/api/v1/predict/category`, { descripcion, monto }),
-      axios.post(`${PYTHON_API_URL}/api/v1/predict/anomaly`, { descripcion, monto })
-    ]);
+    // 1. Obtener categoría
+    const catRes = await axios.post(`${PYTHON_API_URL}/api/v1/predict/category`, { descripcion, monto });
+    const categoria = catRes.data.categoria;
+
+    // 2. Obtener anomalía usando la categoría
+    const anomRes = await axios.post(`${PYTHON_API_URL}/api/v1/predict/anomaly`, { descripcion, monto, categoria });
 
     return {
-      categoria: catRes.data.categoria,
+      categoria: categoria,
       es_anomalia: anomRes.data.es_anomalia
     };
   } catch (error) {
