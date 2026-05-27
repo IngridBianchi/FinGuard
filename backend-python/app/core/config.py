@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     
     REDIS_HOST: str = Field(..., env="REDIS_HOST")
     REDIS_PORT: int = Field(..., env="REDIS_PORT")
+    REDIS_PASSWORD: str = Field(None, env="REDIS_PASSWORD")
+    REDIS_SSL: bool = Field(False, env="REDIS_SSL")
     
     class Config:
         # Buscar el archivo .env en la raíz del proyecto
@@ -20,6 +22,5 @@ class Settings(BaseSettings):
 try:
     settings = Settings()
 except Exception as e:
-    print(f"Error cargando configuración: {e}")
-    # En producción, esto debería detener el servicio.
-    # raise e
+    print(f"ERROR CRÍTICO: Error en la configuración o faltan variables de entorno: {e}")
+    raise e

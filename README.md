@@ -19,33 +19,29 @@ El sistema se compone de tres servicios principales orquestados mediante Docker:
    - `backend-node/.env.example`
    - `backend-python/.env.example`
    - `.env` (en la raíz para variables compartidas).
-3. **Migraciones de Base de Datos**:
-   Asegúrate de que PostgreSQL esté corriendo y ejecuta:
-   ```bash
-   cd backend-node
-   npm install
-   npm run db:migrate
-   ```
+3. **Personalización (Opcional)**: El archivo `docker-compose.yml` utiliza variables de entorno para las credenciales. Puedes sobrescribirlas en tu archivo `.env` de la raíz (ej: `POSTGRES_PASSWORD=mi_secreto`).
 
 ## Pipeline de Inteligencia Artificial
-El sistema requiere modelos pre-entrenados para funcionar. Sigue estos pasos para generarlos:
+El sistema requiere modelos pre-entrenados para funcionar. Sigue estos pasos en orden:
 
 1. **Generación de Datos Sintéticos**:
    ```bash
-   # Desde la raíz
+   # Instala dependencias si no usas Docker para este paso
+   pip install -r backend-python/requirements.txt
+   
+   # Genera 10k registros (cargará los datos en la DB configurada)
    python backend-python/training/generate_data.py --rows 10000
    ```
-   *Nota: Esto cargará los datos directamente en la base de datos PostgreSQL.*
 
 2. **Entrenamiento de Modelos**:
    ```bash
+   # Entrena y genera archivos .pkl en backend-python/app/models/
    python backend-python/training/train_models.py
    ```
-   Esto generará los archivos `.pkl` en `backend-python/app/models/`.
 
 ## Comandos de inicio
 ```bash
-# Iniciar todos los servicios con Docker
+# Iniciar todos los servicios con Docker (Recomendado)
 docker-compose up --build
 ```
 
@@ -56,17 +52,17 @@ docker-compose up --build
 ## Base de Datos: Mantenimiento y Backups
 
 ### Índices de Rendimiento
-Se han creado índices automáticos en los campos `fecha` y `categoria` para optimizar las consultas del dashboard.
+Se han implementado índices en los campos `fecha` y `categoria` de la tabla `transacciones` para garantizar tiempos de respuesta rápidos en el dashboard, incluso con grandes volúmenes de datos.
 
 ### Estrategia de Backup
-Para realizar una copia de seguridad de la base de datos PostgreSQL:
+Para realizar una copia de seguridad:
 
 ```bash
-docker-compose exec postgres pg_dump -U postgres finguard > backup.sql
+docker-compose exec postgres pg_dump -U ${POSTGRES_USER:-postgres} ${POSTGRES_DB:-finguard} > backup.sql
 ```
 
 Para restaurar una copia de seguridad:
 
 ```bash
-cat backup.sql | docker-compose exec -T postgres psql -U postgres -d finguard
+cat backup.sql | docker-compose exec -T postgres psql -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-finguard}
 ```

@@ -7,5 +7,9 @@ CREATE TABLE IF NOT EXISTS transacciones (
     monto DOUBLE PRECISION NOT NULL,
     categoria VARCHAR(255) NOT NULL,
     descripcion VARCHAR(255) NOT NULL,
-    es_anomalia BOOLEAN DEFAULT FALSE
+    es_anomalia BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+-- Índices de Rendimiento
+CREATE INDEX IF NOT EXISTS idx_transacciones_fecha ON transacciones(fecha);
+CREATE INDEX IF NOT EXISTS idx_transacciones_categoria ON transacciones(categoria);
