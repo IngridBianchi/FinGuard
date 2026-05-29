@@ -15,6 +15,14 @@ const sequelize = new Sequelize(
     port: parseInt(process.env.POSTGRES_PORT || '5432'),
     dialect: 'postgres',
     logging: false,
+    dialectOptions: {
+      ssl: process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.includes('neon.tech') 
+        ? {
+            require: true,
+            rejectUnauthorized: false,
+          }
+        : false,
+    },
   }
 );
 
