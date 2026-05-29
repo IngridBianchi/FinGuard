@@ -1,0 +1,35 @@
+<svg width="400" height="120" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    /* El color del texto se adapta al modo del sistema */
+    .text-fin { fill: #0F172A; }
+    .text-guard { fill: #475569; }
+
+    @media (prefers-color-scheme: dark) {
+      .text-fin { fill: #F8FAFC; }
+      .text-guard { fill: #94A3B8; }
+    }
+  </style>
+
+  <defs>
+    <linearGradient id="shield_grad" x1="20" y1="20" x2="80" y2="100" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14B8A6"/> <stop offset="1" stop-color="#0D9488"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M50 15C50 15 22 24 22 55C22 82 50 98 50 98C50 98 78 82 78 55C78 24 50 15 50 15Z" 
+        fill="url(#shield_grad)" />
+  
+  <path d="M38 70L46 58L52 64L62 48" 
+        stroke="white" 
+        stroke-width="3" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+  
+  <circle cx="62" cy="48" r="4.5" fill="#F59E0B" />
+  <circle cx="62" cy="48" r="7" stroke="#F59E0B" stroke-width="1" opacity="0.5" />
+
+  <text x="105" y="72" font-family="Inter, sans-serif, Arial" font-size="42" letter-spacing="-0.02em">
+    <tspan class="text-fin" font-weight="600">Fin</tspan>
+    <tspan class="text-guard" font-weight="400">Guard</tspan>
+  </text>
+</svg>
