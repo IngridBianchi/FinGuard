@@ -21,9 +21,15 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 ...
 
-# Configuración robusta de CORS
-raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001")
-allowed_origins = [o.strip().rstrip("/") for o in raw_origins.split(",")]
+# Configuración de CORS dinámica y segura
+raw_origins = os.getenv("ALLOWED_ORIGINS", "")
+allowed_origins = [o.strip().rstrip("/") for o in raw_origins.split(",") if o.strip()]
+
+# Añadir siempre localhost para desarrollo y el dominio base de tu Vercel
+if "https://finguard-teal.vercel.app" not in allowed_origins:
+    allowed_origins.append("https://finguard-teal.vercel.app")
+if "http://localhost:3000" not in allowed_origins:
+    allowed_origins.append("http://localhost:3000")
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,6 +41,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
+    print(f"Orígenes permitidos en CORS: {allowed_origins}")
     ml_service.load_models()
     ml_service.connect_redis()
 
