@@ -17,16 +17,33 @@ const swaggerDocument = YAML.load(path.resolve(__dirname, '../openapi.yaml'));
 
 app.use(helmet());
 
-// Configuración restringida de CORS
-const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'];
+// Configuración robusta de CORS
+const rawOrigins = process.env.ALLOWED_ORIGINS || 'http://localhost:3000';
+const allowedOrigins = rawOrigins.split(',').map(o => o.trim().replace(/\/$/, ""));
+
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+    
+    // Limpiar origen entrante para comparar
+    const cleanOrigin = origin.trim().replace(/\/$/, "");
+    
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (allowed.includes('*')) {
+        const regex = new RegExp('^' + allowed.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
+        return regex.test(cleanOrigin);
+      }
+      return allowed === cleanOrigin;
+    });
+
+    if (isAllowed) {
       callback(null, true);
     } else {
+      console.warn(`[CORS] Bloqueado: ${origin}. Permitidos: ${allowedOrigins.join(', ')}`);
       callback(new Error('Not allowed by CORS'));
     }
-  }
+  },
+  credentials: true
 }));
 
 // Rate Limiting
