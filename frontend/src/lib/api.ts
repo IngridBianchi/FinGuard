@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Transaction } from '@/types';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = process.env.NEXT_PUBLIC_NODE_API_URL || 'http://localhost:3001/api';
 
 export const getTransactions = async (): Promise<Transaction[]> => {
   const response = await axios.get(`${API_URL}/transactions`);
