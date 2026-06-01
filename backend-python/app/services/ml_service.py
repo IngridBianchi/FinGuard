@@ -28,36 +28,37 @@ class MLService:
     def get_stats(self):
         """
         Calcula y devuelve estadísticas de rendimiento del servicio.
-        Obtiene latencia y total de peticiones procesadas desde Redis.
+        Si falla Redis, devuelve valores por defecto.
         """
-        if not self.redis_client:
-            return {"latency_ms": 0, "throughput_s": 0, "total_processed": 0}
+        try:
+            if not self.redis_client:
+                return {"latency_ms": 0, "throughput_s": 0, "total_processed": 0}
+                
+            latency = self.redis_client.get("stats:latency") or 0
+            total = self.redis_client.get("stats:total_processed") or 0
             
-        latency = self.redis_client.get("stats:latency") or 0
-        total = self.redis_client.get("stats:total_processed") or 0
-        
-        uptime = time.time() - self.start_time
-        throughput = float(total) / uptime if uptime > 0 else 0
-        
-        return {
-            "latency_ms": float(latency),
-            "throughput_s": round(throughput, 2),
-            "total_processed": int(total)
-        }
+            uptime = time.time() - self.start_time
+            throughput = float(total) / uptime if uptime > 0 else 0
+            
+            return {
+                "latency_ms": float(latency),
+                "throughput_s": round(throughput, 2),
+                "total_processed": int(total)
+            }
+        except Exception:
+            return {"latency_ms": 0, "throughput_s": 0, "total_processed": 0}
 
     def _update_stats(self, latency_ms):
         """
         Actualiza las métricas de rendimiento en Redis.
         """
         if not self.redis_client:
-            print("[DEBUG] No Redis client for stats update")
             return
         try:
             self.redis_client.set("stats:latency", latency_ms)
             self.redis_client.incr("stats:total_processed")
-            print(f"[DEBUG] Stats updated: latency={latency_ms}, incremented total")
-        except Exception as e:
-            print(f"[DEBUG] Redis error in _update_stats: {e}")
+        except Exception:
+            pass
 
     def load_models(self):
         """
@@ -87,37 +88,49 @@ class MLService:
 
     def connect_redis(self):
         """
-        Establece la conexión con el servidor Redis.
+        Establece la conexión con el servidor Redis, limpiando el host si es necesario.
         """
         try:
+            # Limpiar el host por si se incluyó el protocolo o puerto accidentalmente
+            clean_host = settings.REDIS_HOST.replace("https://", "").replace("http://", "").split(":")[0].split("/")[0]
+            
             self.redis_client = redis.Redis(
-                host=settings.REDIS_HOST,
+                host=clean_host,
                 port=settings.REDIS_PORT,
                 password=settings.REDIS_PASSWORD,
                 ssl=settings.REDIS_SSL,
                 db=0,
-                decode_responses=True
+                decode_responses=True,
+                socket_timeout=5
             )
-            print("Conexión a Redis establecida.")
+            self.redis_client.ping()
+            print(f"Conexión a Redis establecida en {clean_host}")
         except Exception as e:
-            print(f"Error conectando a Redis: {e}")
+            print(f"Aviso: Falló la conexión a Redis ({e}). Operando sin caché.")
+            self.redis_client = None
 
     def get_cache(self, key_prefix, data):
         """
         Obtiene datos desde la caché de Redis.
         """
         if not self.redis_client: return None
-        key = f"{key_prefix}:{hashlib.md5(json.dumps(data).encode()).hexdigest()}"
-        cached = self.redis_client.get(key)
-        return json.loads(cached) if cached else None
+        try:
+            key = f"{key_prefix}:{hashlib.md5(json.dumps(data).encode()).hexdigest()}"
+            cached = self.redis_client.get(key)
+            return json.loads(cached) if cached else None
+        except Exception:
+            return None
 
     def set_cache(self, key_prefix, data, result, expire=3600):
         """
         Guarda datos en la caché de Redis.
         """
         if not self.redis_client: return
-        key = f"{key_prefix}:{hashlib.md5(json.dumps(data).encode()).hexdigest()}"
-        self.redis_client.setex(key, expire, json.dumps(result))
+        try:
+            key = f"{key_prefix}:{hashlib.md5(json.dumps(data).encode()).hexdigest()}"
+            self.redis_client.setex(key, expire, json.dumps(result))
+        except Exception:
+            pass
 
     def predict_category(self, descripcion: str):
         """
